@@ -34,6 +34,8 @@ const envSchema = z
     OPENAI_MODEL: z.string().default('gpt-5.5'),
     AI_FALLBACK_MODE: z.enum(['mock', 'off']).default('mock'),
     AI_MIN_CONFIDENCE: z.coerce.number().min(0).max(1).default(0.75),
+    DEFAULT_TAKE_PROFIT_PERCENT: z.coerce.number().positive().default(1.5),
+    DEFAULT_STOP_LOSS_PERCENT: z.coerce.number().positive().default(0.75),
   })
   .superRefine((env, ctx) => {
     const errors: Array<[keyof typeof env, string]> = [];

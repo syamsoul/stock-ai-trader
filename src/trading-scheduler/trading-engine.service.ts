@@ -18,6 +18,28 @@ export class TradingEngineService {
     private readonly auditService: AuditService,
   ) {}
 
+  async managePositionExits() {
+    const positions = await this.brokerService.listPositions();
+    const exitOrders = [];
+
+    for (const position of positions) {
+      if (position.exitSignal === 'HOLD') {
+        continue;
+      }
+
+      const result = await this.brokerService.closePosition(
+        position,
+        `${position.exitSignal} triggered at ${position.currentPrice}. Unrealized P/L: ${position.unrealizedProfitLoss}.`,
+      );
+      exitOrders.push({ position, result });
+    }
+
+    return {
+      positions,
+      exitOrders,
+    };
+  }
+
   async runScheduledAnalysis(): Promise<void> {
     const run = await this.auditService.startRun();
     let analyzedCount = 0;

@@ -5,6 +5,11 @@ import { TradingEngineService } from './trading-engine.service';
 export class TradingController {
   constructor(private readonly tradingEngine: TradingEngineService) {}
 
+  @Post('manage-exits')
+  async manageExits() {
+    return this.tradingEngine.managePositionExits();
+  }
+
   @Post('run')
   async runNow() {
     await this.tradingEngine.runScheduledAnalysis();

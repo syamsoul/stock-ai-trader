@@ -14,6 +14,21 @@ type TestPaperOrderBody = {
 export class BrokerTestController {
   constructor(private readonly brokerService: BrokerService) {}
 
+  @Get('account')
+  async getAccount() {
+    return this.brokerService.getAccount();
+  }
+
+  @Get('orders')
+  async listOrders() {
+    return this.brokerService.listOrders();
+  }
+
+  @Get('positions')
+  async listPositions() {
+    return this.brokerService.listPositions();
+  }
+
   @Get('moomoo/accounts')
   async listMoomooAccounts() {
     return this.brokerService.listMoomooAccounts();

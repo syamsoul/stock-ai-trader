@@ -67,8 +67,15 @@ export class AppConfigService {
       .filter(Boolean);
   }
 
-  get alpacaApiKeyId(): string {
-    return this.config.get('ALPACA_API_KEY_ID', { infer: true });
+  get defaultTakeProfitPercent(): number {
+    return this.config.get('DEFAULT_TAKE_PROFIT_PERCENT', { infer: true });
+  }
+
+  get defaultStopLossPercent(): number {
+    return this.config.get('DEFAULT_STOP_LOSS_PERCENT', { infer: true });
+  }
+
+  get alpacaApiKeyId(): string {    return this.config.get('ALPACA_API_KEY_ID', { infer: true });
   }
 
   get alpacaSecretKey(): string {

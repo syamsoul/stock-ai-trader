@@ -75,4 +75,41 @@ describe('AlpacaBrokerAdapter', () => {
 
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it('maps Alpaca positions with P/L and TP/SL signals', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue([
+        {
+          symbol: 'NVDA',
+          qty: '1',
+          side: 'long',
+          market_value: '102',
+          cost_basis: '100',
+          avg_entry_price: '100',
+          current_price: '102',
+          unrealized_pl: '2',
+          unrealized_plpc: '0.02',
+        },
+      ]),
+    });
+
+    const adapter = new AlpacaBrokerAdapter({
+      alpacaBaseUrl: 'https://paper-api.alpaca.markets',
+      alpacaApiKeyId: 'key-id',
+      alpacaSecretKey: 'secret-key',
+      defaultTakeProfitPercent: 1.5,
+      defaultStopLossPercent: 0.75,
+    } as AppConfigService);
+
+    await expect(adapter.listPositions()).resolves.toEqual([
+      expect.objectContaining({
+        symbol: 'NVDA',
+        unrealizedProfitLoss: 2,
+        unrealizedProfitLossPercent: 2,
+        exitSignal: 'TAKE_PROFIT',
+      }),
+    ]);
+  });
+
 });

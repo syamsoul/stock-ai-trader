@@ -213,6 +213,40 @@ curl http://localhost:3000/audit/trade-plans
 If `trade-plans` is empty, the AI still returned `HOLD` for every symbol. Add more symbols to `WATCHLIST_US`, lower `AI_MIN_CONFIDENCE` for paper testing, or inspect `/audit/runs/latest` to see the exact reasons.
 
 
+## Profit/Loss And Exits
+
+Set default paper TP/SL thresholds:
+
+```env
+DEFAULT_TAKE_PROFIT_PERCENT=1.5
+DEFAULT_STOP_LOSS_PERCENT=0.75
+```
+
+View Alpaca paper account state:
+
+```bash
+curl http://localhost:3000/broker/account
+```
+
+View current paper positions with unrealized P/L and TP/SL levels:
+
+```bash
+curl http://localhost:3000/broker/positions
+```
+
+View recent Alpaca orders:
+
+```bash
+curl http://localhost:3000/broker/orders
+```
+
+Ask the app to check open positions and submit closing orders when TP/SL is hit:
+
+```bash
+curl -X POST http://localhost:3000/trading/manage-exits
+```
+
+
 ## OpenAI
 
 If `OPENAI_API_KEY` is present, the app calls OpenAI for structured analyst recommendations. If it is empty, the app falls back to a deterministic mock `HOLD` recommendation so local development still works.
