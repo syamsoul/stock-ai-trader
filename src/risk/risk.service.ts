@@ -39,7 +39,30 @@ export class RiskService {
       reasons: approved ? ['Approved for configured broker order.'] : reasons,
       quantity: approved ? 1 : 0,
       orderType: 'LIMIT',
-      limitPrice: approved ? snapshot.lastPrice : null,
+      limitPrice: approved
+        ? this.marketableLimitPrice(snapshot.lastPrice, recommendation.action)
+        : null,
     };
+  }
+
+  private marketableLimitPrice(
+    lastPrice: number,
+    action: AiRecommendationResult['action'],
+  ): number {
+    const buffer = this.config.entryLimitBufferPercent / 100;
+
+    if (action === 'BUY') {
+      return this.roundPrice(lastPrice * (1 + buffer));
+    }
+
+    if (action === 'SELL') {
+      return this.roundPrice(lastPrice * (1 - buffer));
+    }
+
+    return this.roundPrice(lastPrice);
+  }
+
+  private roundPrice(price: number): number {
+    return Math.round(price * 100) / 100;
   }
 }

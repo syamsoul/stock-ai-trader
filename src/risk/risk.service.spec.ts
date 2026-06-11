@@ -20,6 +20,7 @@ describe('RiskService', () => {
       brokerEnv: 'REAL',
       liveTradingEnabled: true,
       aiMinConfidence: 0.75,
+      entryLimitBufferPercent: 0.5,
     } as AppConfigService);
 
     const result = service.assess(snapshot, {
@@ -40,6 +41,7 @@ describe('RiskService', () => {
       brokerEnv: 'SIMULATE',
       liveTradingEnabled: false,
       aiMinConfidence: 0.75,
+      entryLimitBufferPercent: 0.5,
     } as AppConfigService);
 
     const result = service.assess(snapshot, {
@@ -53,6 +55,28 @@ describe('RiskService', () => {
 
     expect(result.approved).toBe(true);
     expect(result.quantity).toBe(1);
+    expect(result.limitPrice).toBe(197.43);
+  });
+
+  it('uses a lower marketable limit for sell entries', () => {
+    const service = new RiskService({
+      brokerEnv: 'SIMULATE',
+      liveTradingEnabled: false,
+      aiMinConfidence: 0.75,
+      entryLimitBufferPercent: 0.5,
+    } as AppConfigService);
+
+    const result = service.assess(snapshot, {
+      action: 'SELL',
+      confidence: 0.9,
+      riskLevel: 'low',
+      reason: 'Strong mock signal.',
+      model: 'test',
+      raw: {},
+    });
+
+    expect(result.approved).toBe(true);
+    expect(result.limitPrice).toBe(195.47);
   });
 
   it('still blocks low-confidence recommendations', () => {
@@ -60,6 +84,7 @@ describe('RiskService', () => {
       brokerEnv: 'SIMULATE',
       liveTradingEnabled: false,
       aiMinConfidence: 0.75,
+      entryLimitBufferPercent: 0.5,
     } as AppConfigService);
 
     const result = service.assess(snapshot, {

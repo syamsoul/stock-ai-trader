@@ -215,6 +215,16 @@ If `trade-plans` is empty, the AI still returned `HOLD` for every symbol. Add mo
 
 ## Profit/Loss And Exits
 
+
+Entry orders use marketable limit pricing to improve paper fills:
+
+```env
+ENTRY_LIMIT_BUFFER_PERCENT=0.50
+```
+
+For a BUY, the app places the limit slightly above the latest snapshot price. For a SELL, it places the limit slightly below the latest snapshot price.
+
+
 Set default paper TP/SL thresholds:
 
 ```env

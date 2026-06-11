@@ -67,6 +67,10 @@ export class AppConfigService {
       .filter(Boolean);
   }
 
+  get entryLimitBufferPercent(): number {
+    return this.config.get('ENTRY_LIMIT_BUFFER_PERCENT', { infer: true });
+  }
+
   get defaultTakeProfitPercent(): number {
     return this.config.get('DEFAULT_TAKE_PROFIT_PERCENT', { infer: true });
   }
@@ -75,7 +79,8 @@ export class AppConfigService {
     return this.config.get('DEFAULT_STOP_LOSS_PERCENT', { infer: true });
   }
 
-  get alpacaApiKeyId(): string {    return this.config.get('ALPACA_API_KEY_ID', { infer: true });
+  get alpacaApiKeyId(): string {
+    return this.config.get('ALPACA_API_KEY_ID', { infer: true });
   }
 
   get alpacaSecretKey(): string {
