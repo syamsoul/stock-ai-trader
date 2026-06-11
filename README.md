@@ -178,6 +178,41 @@ curl -X POST http://localhost:3000/broker/paper-order/test \
 
 Paper trading uses `BROKER_ENV=SIMULATE`, so trade unlock password is not required. Live trading uses `BROKER_ENV=REAL` and needs unlock credentials.
 
+## Seeing AI Paper Trades
+
+For Alpaca paper trading with live market snapshots, use:
+
+```env
+BROKER_PROVIDER=alpaca
+BROKER_ENV=SIMULATE
+ENABLE_LIVE_TRADING=false
+MARKET_DATA_PROVIDER=alpaca
+WATCHLIST_US=AAPL,MSFT,NVDA,TSLA,AMD,META
+AI_TRADING_STYLE=active
+AI_MIN_CONFIDENCE=0.55
+```
+
+Trigger a run immediately:
+
+```bash
+curl -X POST http://localhost:3000/trading/run
+```
+
+View all latest AI recommendations, risk decisions, and order attempts:
+
+```bash
+curl http://localhost:3000/audit/runs/latest
+```
+
+View only AI recommendations that planned to trade:
+
+```bash
+curl http://localhost:3000/audit/trade-plans
+```
+
+If `trade-plans` is empty, the AI still returned `HOLD` for every symbol. Add more symbols to `WATCHLIST_US`, lower `AI_MIN_CONFIDENCE` for paper testing, or inspect `/audit/runs/latest` to see the exact reasons.
+
+
 ## OpenAI
 
 If `OPENAI_API_KEY` is present, the app calls OpenAI for structured analyst recommendations. If it is empty, the app falls back to a deterministic mock `HOLD` recommendation so local development still works.

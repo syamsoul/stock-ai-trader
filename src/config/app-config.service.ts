@@ -51,6 +51,22 @@ export class AppConfigService {
     return this.config.get('AI_MIN_CONFIDENCE', { infer: true });
   }
 
+  get aiTradingStyle(): 'conservative' | 'active' {
+    return this.config.get('AI_TRADING_STYLE', { infer: true });
+  }
+
+  get marketDataProvider(): 'mock' | 'alpaca' {
+    return this.config.get('MARKET_DATA_PROVIDER', { infer: true });
+  }
+
+  get watchlistUs(): string[] {
+    return this.config
+      .get('WATCHLIST_US', { infer: true })
+      .split(',')
+      .map((symbol) => symbol.trim())
+      .filter(Boolean);
+  }
+
   get alpacaApiKeyId(): string {
     return this.config.get('ALPACA_API_KEY_ID', { infer: true });
   }
@@ -63,6 +79,10 @@ export class AppConfigService {
     return this.brokerEnv === 'REAL'
       ? this.config.get('ALPACA_LIVE_BASE_URL', { infer: true })
       : this.config.get('ALPACA_PAPER_BASE_URL', { infer: true });
+  }
+
+  get alpacaDataBaseUrl(): string {
+    return this.config.get('ALPACA_DATA_BASE_URL', { infer: true });
   }
 
   get moomooOpenDHost(): string {

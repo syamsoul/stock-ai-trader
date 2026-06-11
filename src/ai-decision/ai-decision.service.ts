@@ -32,14 +32,12 @@ export class AiDecisionService {
         input: [
           {
             role: 'system',
-            content:
-              'You are a cautious stock market analyst. Return only JSON with action, confidence, riskLevel, and reason. You do not place trades.',
+            content: this.systemPrompt(),
           },
           {
             role: 'user',
             content: JSON.stringify({
-              instruction:
-                'Analyze this market snapshot for paper trading. Prefer HOLD unless the signal is strong.',
+              instruction: this.analysisInstruction(),
               snapshot,
             }),
           },
@@ -66,8 +64,48 @@ export class AiDecisionService {
     }
   }
 
+
+  private systemPrompt(): string {
+    if (this.config.aiTradingStyle === 'active') {
+      return [
+        'You are a paper-trading stock analyst for a demo account.',
+        'Return only JSON with action, confidence, riskLevel, and reason.',
+        'You do not place trades; the application risk engine and broker adapter handle that.',
+        'For active paper trading, look for a reasonable trade from momentum and liquidity.',
+        'Prefer BUY when price is above the latest bar open with meaningful volume.',
+        'Use HOLD only when data is invalid, price action is flat, or the setup is clearly poor.',
+      ].join(' ');
+    }
+
+    return 'You are a cautious stock market analyst. Return only JSON with action, confidence, riskLevel, and reason. You do not place trades.';
+  }
+
+  private analysisInstruction(): string {
+    if (this.config.aiTradingStyle === 'active') {
+      return 'Analyze this latest market snapshot for Alpaca paper trading. Choose BUY, SELL, or HOLD. In active paper mode, do not default to HOLD when there is positive or negative momentum. Keep the confidence realistic between 0 and 1.';
+    }
+
+    return 'Analyze this market snapshot for paper trading. Prefer HOLD unless the signal is strong.';
+  }
+
+  private extractJson(outputText: string): string {
+    const trimmed = outputText.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      return trimmed;
+    }
+
+    const start = trimmed.indexOf('{');
+    const end = trimmed.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      return trimmed.slice(start, end + 1);
+    }
+
+    throw new Error('AI response did not contain a JSON object.');
+  }
+
   private parseRecommendation(outputText: string): AiRecommendationJson {
-    const parsed = JSON.parse(outputText) as Partial<AiRecommendationJson>;
+    const jsonText = this.extractJson(outputText);
+    const parsed = JSON.parse(jsonText) as Partial<AiRecommendationJson>;
 
     if (
       parsed.action !== 'BUY' &&
