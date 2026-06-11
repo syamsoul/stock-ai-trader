@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SchedulerRun {
+  id                 String             @id @default(cuid())
+  status             String
+  startedAt          DateTime           @default(now())
+  completedAt        DateTime?
+  error              String?
+  analyzedCount      Int                @default(0)
+  approvedOrderCount Int                @default(0)
+  recommendations    AiRecommendation[]
+  riskDecisions      RiskDecision[]
+  paperOrders        PaperOrder[]
+}
+
+model AiRecommendation {
+  id              String   @id @default(cuid())
+  schedulerRunId  String
+  schedulerRun    SchedulerRun @relation(fields: [schedulerRunId], references: [id], onDelete: Cascade)
+  symbol          String
+  market          String
+  action          String
+  confidence      Float
+  riskLevel       String
+  reason          String
+  model           String
+  raw             Json
+  createdAt       DateTime @default(now())
+}
+
+model RiskDecision {
+  id             String   @id @default(cuid())
+  schedulerRunId String
+  schedulerRun   SchedulerRun @relation(fields: [schedulerRunId], references: [id], onDelete: Cascade)
+  symbol         String
+  market         String
+  approved       Boolean
+  reasons        String[]
+  createdAt      DateTime @default(now())
+}
+
+model PaperOrder {
+  id             String   @id @default(cuid())
+  schedulerRunId String
+  schedulerRun   SchedulerRun @relation(fields: [schedulerRunId], references: [id], onDelete: Cascade)
+  symbol         String
+  market         String
+  side           String
+  quantity       Int
+  orderType      String
+  limitPrice     Float?
+  status         String
+  brokerOrderId  String
+  rationale      String
+  createdAt      DateTime @default(now())
+}
